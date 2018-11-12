@@ -1,0 +1,75 @@
+---
+
+- name: Create Demo Organization
+  tower_organization:
+    name: "{{ tower_org }}"
+    description: "Red Hat Demo"
+    state: present
+  tags: tower-insights
+
+- name: Create root user credential
+  tower_credential:
+    name: root
+    username: root
+    password: "{{ root_password }}"
+    state: present
+    organization: "{{ tower_org }}"
+    kind: ssh
+  tags: tower-insights
+
+- name: Create Insights credential
+  tower_credential:
+    name: Insights
+    username: "{{ insights_user }}"
+    password: "{{ insights_password }}"
+    state: present
+    organization: "{{ tower_org }}"
+    kind: insights
+  tags: tower-insights
+
+- name: Create Demo Inventory
+  shell: tower-cli inventory create --name demo --organization "{{ tower_org }}" --insights-credential Insights
+  tags: tower-insights
+
+- name: Create groups
+  tower_group:
+    name: "{{ item }}"
+    inventory: "demo"
+    state: present
+  with_items:
+    - webservers
+    - loadbalancers
+  tags: tower-insights
+
+- name: Add Hosts
+  tower_host:
+    name: "{{ item.host }}"
+    state: present
+    inventory: demo
+  with_items: "{{ demo_hosts }}"
+  tags: tower-insights
+
+- name: Associate hosts to groups
+  shell: tower-cli host associate --host "{{ item.host }}" --group "{{ item.group }}"
+  with_items: "{{ demo_hosts }}" 
+  tags: tower-insights
+
+- name: Create Insights Project
+  shell: tower-cli project create --name Insights --organization "{{ tower_org }}" --scm-type insights --scm-credential Insights
+  tags: tower-insights
+
+- name: Create Insights Scan Project
+  shell: 'tower-cli project create --name "Insights Scan" --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/ansible/awx-facts-playbooks --monitor'
+  tags: tower-insights
+
+- name: Create Insights scan job template
+  tower_job_template:
+    name: "Insights Scan"
+    job_type: "run"
+    inventory: "demo"
+    project: "Insights Scan"
+    playbook: "scan_facts.yml"
+    credential: "root"
+    state: "present"
+    fact_caching_enabled: yes
+  tags: tower-insights

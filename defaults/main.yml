@@ -1,0 +1,8 @@
+---
+
+tower_org: demo
+demo_hosts:
+  - { host: 'web1.example.com', group: 'webservers' }
+  - { host: 'web2.example.com', group: 'webservers' }
+  - { host: 'haproxy.example.com', group: 'loadbalancers' }
+
