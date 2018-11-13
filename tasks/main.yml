@@ -7,14 +7,26 @@
     state: present
   tags: tower-insights
 
+- name: Copy root key across
+  copy:
+    src: /root/.ssh/id_rsa
+    dest: /root/
+  tags: tower-insights
+
 - name: Create root user credential
   tower_credential:
     name: root
     username: root
-    password: "{{ root_password }}"
+    ssh_key_data: /root/id_rsa
     state: present
     organization: "{{ tower_org }}"
     kind: ssh
+  tags: tower-insights
+
+- name: Remove root key
+  file:
+    path: /root/id_rsa
+    state: absent
   tags: tower-insights
 
 - name: Create Insights credential
