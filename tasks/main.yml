@@ -28,7 +28,7 @@
   tags: tower-insights
 
 - name: Create Demo Inventory
-  shell: tower-cli inventory create --name demo --organization "{{ tower_org }}" --insights-credential Insights
+  shell: tower-cli inventory create --name demo --organization "{{ tower_org }}" --insights-credential Insights -v
   register: cli_out
   changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
@@ -52,20 +52,20 @@
   tags: tower-insights
 
 - name: Associate hosts to groups
-  shell: tower-cli host associate --host "{{ item.host }}" --group "{{ item.group }}"
+  shell: tower-cli host associate --host "{{ item.host }}" --group "{{ item.group }}" -v
   with_items: "{{ demo_hosts }}" 
   register: cli_out
   changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
 
 - name: Create Insights Project
-  shell: tower-cli project create --name Insights --organization "{{ tower_org }}" --scm-type insights --scm-credential Insights
+  shell: tower-cli project create --name Insights --organization "{{ tower_org }}" --scm-type insights --scm-credential Insights --scm-update-on-launch true --scm-delete-on-update true --scm-clean true -v
   register: cli_out
   changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
 
 - name: Create Insights Scan Project
-  shell: 'tower-cli project create --name "Insights Scan" --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/ansible/awx-facts-playbooks --monitor'
+  shell: 'tower-cli project create --name "Insights Scan" --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/ansible/awx-facts-playbooks --scm-update-on-launch true --scm-delete-on-update true --scm-clean true --monitor -v'
   register: cli_out
   changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
@@ -83,7 +83,7 @@
   tags: tower-insights
 
 - name: Create demo Project
-  shell: 'tower-cli project create --name demo --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/pharriso/ansible-lb-demo.git --monitor'
+  shell: 'tower-cli project create --name demo --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/pharriso/ansible-lb-demo.git --scm-update-on-launch true --scm-delete-on-update true --scm-clean true --monitor -v'
   register: cli_out
   changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
@@ -101,4 +101,16 @@
   shell: "tower-cli credential create --organization {{ tower_org }} --credential-type rhsm --inputs='{ rhsm_org: \"{{ rhsm_org }}\", rhsm_key: \"{{ rhsm_key }}\" }' --name rhsm -v"
   register: cli_out
   changed_when: "'Resource changed' in cli_out.stdout"
+  tags: tower-insights
+
+- name: Create VM create job template
+  tower_job_template:
+    name: "Create VM"
+    job_type: "run"
+    inventory: "demo"
+    project: "demo"
+    playbook: "create_libvirt_vm.yml"
+    credential: "root"
+    state: "present"
+    fact_caching_enabled: yes
   tags: tower-insights
