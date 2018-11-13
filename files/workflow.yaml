@@ -1,0 +1,18 @@
+- id: 1
+  job_template: "Create VM"
+  success_nodes:
+  - id: 2
+    job_template: "Register to Satellite"
+    success_nodes:
+    - id: 4
+      job_template: "Configure Webserver"
+      limit: webservers
+      success_nodes:
+      - id: 5
+        job_template: "Install Insights"
+        success_nodes:
+        - id: 6
+          job_template: "Insights Scan"
+    - id: 3
+      job_template: "Configure loadbalancer"
+      limit: loadbalancers
