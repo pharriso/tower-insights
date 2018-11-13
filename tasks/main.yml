@@ -73,3 +73,20 @@
     state: "present"
     fact_caching_enabled: yes
   tags: tower-insights
+
+- name: Create demo Project
+  shell: 'tower-cli project create --name demo --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/pharriso/ansible-lb-demo.git --monitor'
+  tags: tower-insights
+
+- name: Create rhsm custom credential
+  tower_credential_type:
+    name: rhsm
+    kind: cloud
+    state: present
+    inputs: "{{ lookup('file', 'rhsm_credential_input.json') }}"
+    injectors: "{{ lookup('file', 'rhsm_credential_injector.json') }}"
+  tags: tower-insights
+
+- name: Create rhsm credential
+  shell: "tower-cli credential create --organization {{ tower_org }} --credential-type rhsm --inputs='{ rhsm_org: \"{{ rhsm_org }}\", rhsm_key: \"{{ rhsm_key }}\" }' --name rhsm -v"
+  tags: tower-insights
