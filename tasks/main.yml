@@ -29,6 +29,8 @@
 
 - name: Create Demo Inventory
   shell: tower-cli inventory create --name demo --organization "{{ tower_org }}" --insights-credential Insights
+  register: cli_out
+  changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
 
 - name: Create groups
@@ -52,14 +54,20 @@
 - name: Associate hosts to groups
   shell: tower-cli host associate --host "{{ item.host }}" --group "{{ item.group }}"
   with_items: "{{ demo_hosts }}" 
+  register: cli_out
+  changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
 
 - name: Create Insights Project
   shell: tower-cli project create --name Insights --organization "{{ tower_org }}" --scm-type insights --scm-credential Insights
+  register: cli_out
+  changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
 
 - name: Create Insights Scan Project
   shell: 'tower-cli project create --name "Insights Scan" --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/ansible/awx-facts-playbooks --monitor'
+  register: cli_out
+  changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
 
 - name: Create Insights scan job template
@@ -76,6 +84,8 @@
 
 - name: Create demo Project
   shell: 'tower-cli project create --name demo --organization "{{ tower_org }}" --scm-type git --scm-url https://github.com/pharriso/ansible-lb-demo.git --monitor'
+  register: cli_out
+  changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
 
 - name: Create rhsm custom credential
@@ -89,4 +99,6 @@
 
 - name: Create rhsm credential
   shell: "tower-cli credential create --organization {{ tower_org }} --credential-type rhsm --inputs='{ rhsm_org: \"{{ rhsm_org }}\", rhsm_key: \"{{ rhsm_key }}\" }' --name rhsm -v"
+  register: cli_out
+  changed_when: "'Resource changed' in cli_out.stdout"
   tags: tower-insights
