@@ -2,7 +2,7 @@
 
 tower_org: demo
 demo_hosts:
-  - { host: 'web1.example.com', group: 'webservers' }
-  - { host: 'web2.example.com', group: 'webservers' }
-  - { host: 'haproxy.example.com', group: 'loadbalancers' }
+  - { host: 'web1.example.com', group: 'webservers', 'ansible_host': '192.168.122.20' }
+  - { host: 'web2.example.com', group: 'webservers', 'ansible_host': '192.168.122.21' }
+  - { host: 'haproxy.example.com', group: 'loadbalancers', 'ansible_host': '192.168.122.22' }
 

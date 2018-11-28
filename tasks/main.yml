@@ -60,6 +60,8 @@
     name: "{{ item.host }}"
     state: present
     inventory: demo
+    variables:
+      ansible_host: "{{ item.ansible_host }}"
   with_items: "{{ demo_hosts }}"
   tags: tower-insights
 
@@ -132,6 +134,7 @@
     - { "name": "Configure Webserver", "playbook": "deploy_web.yaml", "limit": "yes" }
     - { "name": "Configure loadbalancer", "playbook": "deploy_lb.yaml", "limit": "yes" }
     - { "name": "Install Insights", "playbook": "install_insights.yaml" }
+    - { "name": "Rolling Update", "playbook": "rolling_update.yaml" }
   tags: tower-insights
 
 - name: Associate RHSM credential 
@@ -146,3 +149,5 @@
     organization: "{{ tower_org }}"
     schema: "{{ lookup('file', 'workflow.yaml') }}"
   tags: tower-insights
+
+
